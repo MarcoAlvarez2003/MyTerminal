@@ -451,12 +451,3 @@ export class Lexer {
         return this.i < this.source.length;
     }
 }
-
-await Deno.writeTextFile(
-    "settings.json",
-    JSON.stringify(
-        new Lexer(
-            new Tokenizer(await Deno.readTextFile("settings.txt")).getTokensFound()
-        ).getCodeBlocksFound()
-    )
-);
