@@ -6,8 +6,10 @@ export class Echo implements Command {
     public readonly version: string = "v1.0.0";
     public readonly name: string = "echo";
 
-    public render(args: RenderArguments): void {
+    public render(args: RenderArguments) {
         console.log(...args.arguments.entries);
+
+        return args.arguments.entries.join(" ");
     }
 
     public information({ libraries: { translator } }: RenderArguments) {

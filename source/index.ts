@@ -28,6 +28,7 @@ import { Path } from "./components/path.ts";
 import { green, magenta, yellow, bold } from "./imports/color.ts";
 import { join } from "./imports/path.ts";
 import { parse } from "./imports/flags.ts";
+import { Recorder } from "./components/recorder.ts";
 
 const enum Constants {
     Settings = "my_term_settings.json",
@@ -65,6 +66,8 @@ class Program {
 
     protected static translator = new Translator(Program.memory, Program.status);
 
+    protected static recorder = new Recorder();
+
     protected static handler = new CommandHandler(
         [
             new Package(),
@@ -85,6 +88,7 @@ class Program {
             translator: Program.translator,
             readline: Program.readline,
             keyboard: Program.keyboard,
+            recorder: Program.recorder,
             editor: Program.editor,
             memory: Program.memory,
             router: Program.router,
@@ -98,21 +102,20 @@ class Program {
         Program.getShellMessage,
         new Launcher()
     );
-    public static async main(...args: string[]) {
-        await Program.load();
-        await Program.render(args);
+
+    public static async main(...source: string[]) {
+        await Program.loader();
+
+        if (source.length) {
+            await Program.update();
+            await Program.render(source);
+        }
+
         await Program.handler.main();
     }
 
-    protected static async render(args: string[]) {
-        const { _, ...props } = parse(args);
-        const source = args.join(" ");
-
-        if (Object.keys(props).length) {
-            await Program.handler.render();
-            await Program.handler.evaluate(source);
-            await Program.handler.evaluate("exit --keep");
-        }
+    public static async render(source: string[]) {
+        await Program.handler.evaluate(source.join(" "));
     }
 
     protected static getProgramInstance() {
@@ -139,8 +142,12 @@ class Program {
         return folder;
     }
 
-    protected static async load() {
+    protected static async loader() {
         await Program.memory.load();
+        console.clear();
+    }
+    protected static async update() {
+        await Program.handler.update();
         console.clear();
     }
 }

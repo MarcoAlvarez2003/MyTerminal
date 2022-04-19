@@ -1,6 +1,0 @@
-```txt
-
-username folder path
-$
-
-```

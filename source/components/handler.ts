@@ -1,4 +1,4 @@
-import { Parser, CodeBlock } from "./parser.ts";
+import { Lexer, Tokenizer, CodeBlock, Token } from "./parser.ts";
 import { red, bold } from "../imports/color.ts";
 import { StatusController } from "./status.ts";
 import { Canvas, Screen } from "./graphics.ts";
@@ -11,8 +11,11 @@ import { Router } from "./router.ts";
 import { Editor } from "./editor.ts";
 import { Page } from "./network.ts";
 import { Path } from "./path.ts";
+import { Recorder } from "./recorder.ts";
 
-type Render<Return = void | Promise<void>> = (args: RenderArguments) => Return;
+type Render<Return = (void | unknown) | Promise<void | unknown>> = (
+    args: RenderArguments
+) => Return;
 
 type Message = string | (() => string);
 
@@ -40,6 +43,7 @@ export interface Libraries {
     path: Path;
     page: Page;
     fs: FileSystem;
+    recorder: Recorder;
     readline: ReadLine;
     keyboard: Keyboard;
     translator: Translator;
@@ -53,7 +57,7 @@ export interface RenderArguments {
 
 export interface Arguments {
     properties: Record<string, number | string | boolean>;
-    entries: (number | string)[];
+    entries: (number | string | boolean)[];
 }
 
 class CommandHandler {
@@ -119,24 +123,52 @@ class CommandHandler {
         this.commands.unshift(this.core);
 
         for (const block of this.compile(source)) {
-            await this.engine(block);
+            const result = await this.engine(block);
+
+            result !== undefined ? console.log(result) : 0;
         }
 
         this.commands.shift();
     }
 
     public compile(source: string) {
-        return new Parser(source).getCodeBlocksFound();
+        return new Lexer(new Tokenizer(source).getTokensFound()).getCodeBlocksFound();
     }
 
     public async engine(block: CodeBlock) {
         try {
-            for (const command of this.commands) {
-                if (command.targets.test(block.command)) {
-                    await command.render(
+            for (const cmd of this.commands) {
+                if (cmd.targets.test(block.command.getAsString())) {
+                    const entries = await Promise.all(
+                        block.entries.map(async (token) => await this.getTokenValue(token))
+                    );
+
+                    const properties: Arguments["properties"] = {};
+
+                    for (const key in block.properties) {
+                        const value = block.properties[key];
+
+                        if (value instanceof Token) {
+                            const _value = await this.getTokenValue(value);
+
+                            if (_value !== undefined) {
+                                properties[key] = _value;
+                            }
+                        }
+
+                        if (value instanceof CodeBlock) {
+                            const _value = await this.engine(value);
+
+                            if (_value !== undefined) {
+                                properties[key] = _value as string;
+                            }
+                        }
+                    }
+
+                    return await cmd.render(
                         this.createHandlerArgument({
-                            properties: block.properties,
-                            entries: block.arguments,
+                            properties,
+                            entries,
                         })
                     );
                 }
@@ -146,11 +178,37 @@ class CommandHandler {
         }
     }
 
+    protected async getTokenValue(token: Token | CodeBlock): Promise<string | number | boolean> {
+        if (token instanceof Token) {
+            if (token.type === "Boolean") {
+                return token.getAsBoolean();
+            }
+
+            if (token.type === "String") {
+                return token.getAsString();
+            }
+
+            if (token.type === "Number") {
+                return token.getAsNumber();
+            }
+
+            return "";
+        }
+
+        const value = await this.engine(token);
+
+        if (value) {
+            return value as string;
+        }
+
+        return "";
+    }
+
     /* 
         ? Update Apps
     */
 
-    protected async update() {
+    public async update() {
         for (const command of this.commands) {
             await command.update(
                 this.createHandlerArgument({
