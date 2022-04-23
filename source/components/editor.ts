@@ -1,6 +1,9 @@
 import { white, bold, green } from "../imports/color.ts";
 import { readKeypress, Keypress } from "./keyboard.ts";
-import ascii from "../tools/ascii.ts";
+
+const ascii = {
+    block: "█",
+};
 
 class Editor {
     protected content: string[] = [""];
