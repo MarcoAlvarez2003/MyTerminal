@@ -1,4 +1,4 @@
-import { exist } from "../tools/path.ts";
+import { exist } from "../utils/path.ts";
 
 class MemoryStorage {
     constructor(protected path: string, protected storage: Record<string, unknown> = {}) {}
