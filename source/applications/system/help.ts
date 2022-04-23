@@ -1,26 +1,62 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 
 export class Help implements Command {
+    public readonly availCommands: SubCommand[] = [
+        {
+            type: "boolean",
+            name: "info",
+        },
+        {
+            type: "boolean",
+            name: "commands",
+        },
+        {
+            type: "boolean",
+            name: "translations",
+        },
+    ];
+
     public readonly developer: string = "system";
     public readonly version: string = "v1.0.0";
     public readonly targets: RegExp = /help/;
     public readonly name: string = "help";
 
     public async render(args: RenderArguments): Promise<void> {
-        if (args.arguments.properties.commands !== undefined) {
-            for (const commands of args.initializer) {
-                for (const command of commands) {
-                    console.log(`\t${command}`);
+        const {
+            arguments: { entries, properties },
+            initializer,
+            libraries,
+            ..._
+        } = args;
+
+        if (properties.commands !== undefined) {
+            if (entries.length) {
+                for (const entry of entries) {
+                    const cmd = initializer.getCommand(entry.toString());
+
+                    if (cmd) {
+                        console.log("command", entry);
+
+                        for (const command of cmd.availCommands) {
+                            console.log(`\t${command.name} = <${command.type}>`);
+                        }
+                    }
+                }
+            } else {
+                for (const commands of initializer) {
+                    for (const command of commands) {
+                        console.log(`\t${command}`);
+                    }
                 }
             }
         }
 
-        if (args.arguments.properties.info !== undefined) {
-            for (const command of args.arguments.entries) {
-                const cmd = args.initializer.getCommand(command.toString());
+        if (properties.info !== undefined) {
+            for (const command of entries) {
+                const cmd = initializer.getCommand(command.toString());
 
                 if (cmd) {
-                    if (args.arguments.properties.abs !== undefined) {
+                    if (properties.abs !== undefined) {
                         console.log(`Developer: ${cmd.developer ? cmd.developer : "unknown"}`);
                     }
 
@@ -29,6 +65,28 @@ export class Help implements Command {
                     console.log(`name: ${cmd.name}`);
 
                     cmd.information(args);
+                }
+            }
+
+            console.log();
+        }
+
+        if (properties.translations !== undefined) {
+            for (const command of entries) {
+                const cmd = initializer.getCommand(command.toString());
+
+                if (cmd) {
+                    const memory = libraries.translator.all(cmd.name);
+
+                    for (const lang in memory) {
+                        console.log("language", lang);
+
+                        for (const key in memory[lang]) {
+                            const text = memory[lang][key];
+
+                            console.log(`\t${key}: ${text}`);
+                        }
+                    }
                 }
             }
         }

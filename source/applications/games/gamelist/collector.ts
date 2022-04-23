@@ -1,6 +1,6 @@
+import { bgBlue, bgYellow, bgMagenta } from "../../../imports/color.ts";
 import { readKeypress } from "../../../components/keyboard.ts";
 import { Canvas } from "../../../components/graphics.ts";
-import { bgBlue } from "../../../imports/color.ts";
 import { Coin } from "./objects/coin.ts";
 
 export class Collector {
@@ -9,13 +9,14 @@ export class Collector {
     protected y: number = 0;
     protected w: number = 2;
     protected h: number = 1;
+    protected p: number = 0;
     protected c: Coin;
 
     constructor() {
         const { columns, rows } = Deno.consoleSize(Deno.stdout.rid);
 
-        this.canvas = new Canvas(columns, rows - 1);
-        const { w, h } = this.canvas.size;
+        this.canvas = new Canvas([columns, rows - 1]);
+        const [w, h] = this.canvas.getGeometry();
 
         this.c = new Coin(w, h);
     }
@@ -50,24 +51,51 @@ export class Collector {
                 this.y + this.h > this.c.y &&
                 this.y < this.c.y + this.c.h
             ) {
-                const { w, h } = this.canvas.size;
+                const [w, h] = this.canvas.getGeometry();
 
                 this.c = new Coin(w, h);
+                this.p++;
             }
 
-            this.draw();
+            await this.draw();
         }
     }
 
-    protected draw() {
-        console.clear();
-        this.canvas.clear();
+    protected async draw() {
+        const [w, h] = this.canvas.getGeometry();
 
-        this.canvas.color = bgBlue(" ");
+        console.clear();
+        this.canvas.reset();
+
+        /* 
+            ? Player And Coin
+        */
+        this.canvas.style = bgBlue(" ");
         this.canvas.rect(this.x, this.y, this.w, this.h);
 
         this.c.draw(this.canvas);
-        this.canvas.print();
+
+        /* 
+        ? Information
+        */
+
+        this.canvas.style = bgYellow(" ");
+        this.canvas.write(`${this.p}`, 1, 1);
+
+        this.canvas.style = bgMagenta(" ");
+        this.canvas.write(`points`, 2 + `${this.p}`.length, 1);
+
+        /* 
+       ? Coords
+       */
+
+        this.canvas.style = bgYellow(" ");
+        this.canvas.write(`[${this.x}, ${this.y}]`, 1, h - 1);
+
+        /* 
+        ? Paint 
+      */
+        await this.canvas.print();
     }
 
     protected moveUp() {
@@ -77,7 +105,7 @@ export class Collector {
     }
 
     protected moveDown() {
-        if (this.y + this.h < this.canvas.size.h) {
+        if (this.y + this.h < this.canvas.getGeometry()[1]) {
             this.y++;
         }
     }
@@ -89,7 +117,7 @@ export class Collector {
     }
 
     protected moveRight() {
-        if (this.x + this.w < this.canvas.size.w) {
+        if (this.x + this.w < this.canvas.getGeometry()[0]) {
             this.x++;
         }
     }

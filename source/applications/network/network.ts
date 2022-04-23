@@ -1,7 +1,13 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 import { Browser } from "../network.ts";
 
 export class Network implements Command {
+    public readonly availCommands: SubCommand[] = [
+        {
+            name: "navigate",
+            type: "boolean",
+        },
+    ];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /network/;
     public readonly version: string = "v1.0.0";

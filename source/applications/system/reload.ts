@@ -1,6 +1,7 @@
-import { Command, RenderArguments, Arguments } from "../../components/handler.ts";
+import { Command, RenderArguments, Arguments, SubCommand } from "../../components/handler.ts";
 
 export class Reload implements Command {
+    public readonly availCommands: SubCommand[] = [];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /reload/;
     public readonly version: string = "v1.0.0";

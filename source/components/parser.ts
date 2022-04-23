@@ -427,6 +427,12 @@ export class Lexer {
                 };
             }
 
+            if (next.type === "Separator") {
+                return {
+                    [current.getAsString()]: new Token("Boolean", true, current.init, current.end),
+                };
+            }
+
             this.back();
         }
 

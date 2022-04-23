@@ -24,10 +24,10 @@ export class Coin {
     }
 
     public draw(canvas: Canvas) {
-        const color = canvas.color;
+        const style = canvas.style;
 
-        canvas.color = bgWhite(" ");
+        canvas.style = bgWhite(" ");
         canvas.rect(this.x, this.y, this.w, this.h);
-        canvas.color = color;
+        canvas.style = style;
     }
 }

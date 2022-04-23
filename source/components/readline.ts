@@ -1,8 +1,11 @@
 import { readKeypress } from "./keyboard.ts";
 
 class ReadLine {
-    public static async select(message: string, choice: string[]) {
-        ReadLine.print(message);
+    protected encoder = new TextEncoder();
+    protected decoder = new TextDecoder();
+
+    public async select(message: string, choice: string[]) {
+        await this.print(message);
 
         let index = 0;
 
@@ -19,7 +22,11 @@ class ReadLine {
         );
 
         for await (const { ctrlKey, key } of readKeypress()) {
-            if (ctrlKey && key === key) {
+            console.clear();
+
+            await this.print(message);
+
+            if (ctrlKey && key === "c") {
                 break;
             }
 
@@ -59,9 +66,16 @@ class ReadLine {
         return choice[index];
     }
 
-    public static print(message: string) {
-        console.log(message);
-        console.clear();
+    public async print(message: string) {
+        await Deno.stdout.write(this.encoder.encode(message));
+    }
+
+    public async prompt(message: string, length = 1024) {
+        const buffer = new Uint8Array({ length });
+        await this.print(message + ":");
+        await Deno.stdin.read(buffer);
+
+        return this.decoder.decode(buffer);
     }
 }
 

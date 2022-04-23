@@ -1,9 +1,10 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 import { Stat, Archive, Directory } from "../../components/fsystem.ts";
 import { magenta, green, bold } from "../../imports/color.ts";
 import { Recorder } from "../../components/recorder.ts";
 
 export class Read implements Command {
+    public readonly availCommands: SubCommand[] = [];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /(ls|dir)/;
     public readonly version: string = "v1.0.0";

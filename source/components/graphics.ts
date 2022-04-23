@@ -1,163 +1,114 @@
-import { bgWhite } from "../imports/color.ts";
+export type ScreenGeometry = [x: number, y: number];
 
 class Screen {
-    protected buffer: string[][] = [];
-    protected w: number = 0;
-    protected h: number = 0;
+    protected encoder = new TextEncoder();
+    protected decoder = new TextDecoder();
+    protected storage: string[][] = [];
 
-    constructor(w?: number, h?: number) {
-        this.request(w, h);
-        this.clear();
+    constructor(protected geometry: ScreenGeometry = [0, 0]) {
+        this.reset();
     }
 
-    public setHeight(h: number) {
-        this.buffer = [];
+    public static getScreenGeometry(): ScreenGeometry {
+        const geometry = Deno.consoleSize(Deno.stdout.rid);
 
-        if (h >= 0) {
-            this.h = h;
-            this.clear();
-        }
+        return [geometry.columns, geometry.rows];
     }
 
-    public setWidth(w: number) {
-        this.buffer = [];
-
-        if (w >= 0) {
-            this.w = w;
-            this.clear();
-        }
+    public setGeometry(x: number, y: number) {
+        this.geometry = [x, y];
     }
 
-    public getHeight() {
-        return this.h;
+    public getGeometry() {
+        return this.geometry;
     }
 
-    public geWidth() {
-        return this.w;
-    }
+    public drawChar(char: string, x: number, y: number) {
+        char = this.parseChar(char);
 
-    public elipse(char: string, x: number, y: number, w: number, h: number) {
-        let i: number, angle: number, x1: number, y1: number;
-
-        for (i = 0; i < 360; i++) {
-            angle = i;
-            x1 = Math.floor(w * Math.cos((angle * Math.PI) / 180));
-            y1 = Math.floor(h * Math.sin((angle * Math.PI) / 180));
-            this.draw(char, x1, y1);
-        }
-    }
-
-    public rect(char: string, x: number, y: number, w: number, h: number) {
-        let _x = x;
-        let _y = y;
-
-        while (_y < y + h) {
-            while (_x < x + w) {
-                this.draw(char, _x, _y);
-                _x++;
-            }
-
-            _x = x;
-            _y++;
-        }
-    }
-
-    public write(text: string, x: number, y: number) {
-        for (const char of text) {
-            this.draw(char, x++, y);
-        }
-    }
-
-    public draw(char: string, x: number, y: number) {
-        for (let row = 0; row < this.h; row++) {
-            for (let col = 0; col < this.w; col++) {
-                if (x === col && y === row) {
-                    this.buffer[row][col] = char;
-                }
+        for (let row = 0; row < this.storage.length; row++) {
+            for (let column = 0; column < this.storage[row].length; column++) {
+                column === x && row === y ? (this.storage[row][column] = char) : 0;
             }
         }
     }
 
-    public clear() {
-        for (let row = 0; row < this.h; row++) {
-            this.buffer[row] = [];
+    public drawRect(char: string, x: number, y: number, w: number, h: number) {
+        const axis = { x, y };
 
-            for (let col = 0; col < this.w; col++) {
-                this.buffer[row][col] = " ";
+        while (axis.y < y + h) {
+            while (axis.x < x + w) {
+                this.drawChar(char, axis.x, axis.y);
+                axis.x++;
+            }
+
+            axis.x = x;
+            axis.y++;
+        }
+    }
+
+    public write(query: string, x: number, y: number, w?: number, h?: number) {
+        query = w && h ? this.parseQuery(query, w, h) : query;
+
+        for (const char of query) {
+            this.drawChar(char, x++, y);
+        }
+    }
+
+    public reset() {
+        for (let row = 0; row < this.geometry[1]; row++) {
+            this.storage[row] = [];
+
+            for (let col = 0; col < this.geometry[0]; col++) {
+                this.storage[row][col] = " ";
             }
         }
     }
 
-    public print() {
-        console.log(this.buffer.map((column) => column.join("")).join("\n"));
+    public clearRect(x: number, y: number, w: number, h: number) {
+        this.drawRect(" ", x, y, w, h);
     }
 
-    protected request(w?: number, h?: number) {
-        const request = Deno.consoleSize(Deno.stdout.rid);
+    public getAsString() {
+        return this.storage.map((column) => column.join("")).join("\n");
+    }
 
-        this.w = w ?? request.columns;
-        this.h = h ?? request.rows;
+    public async print() {
+        await Deno.stdout.write(this.encoder.encode(this.getAsString()));
+    }
+
+    protected parseQuery(query: string, w: number, h: number) {
+        const chars = query.split("").filter((char) => {
+            if (char === "\n" && h) {
+                h--;
+                return false;
+            }
+
+            return true;
+        });
+
+        chars.length = w;
+
+        console.log(chars);
+
+        return chars.join("");
+    }
+
+    protected parseChar(char: string) {
+        char = char.replace(/(\r|\n)/g, "");
+
+        if (char.length > 1) {
+            return char[0];
+        }
+
+        return char;
     }
 }
-
-class Canvas {
-    protected screen: Screen;
-    protected char: string;
-
-    constructor(w?: number, h?: number) {
-        this.screen = new Screen(w, h);
-        this.char = bgWhite(" ");
-    }
-
-    public get size() {
-        return {
-            h: this.screen.getHeight(),
-            w: this.screen.geWidth(),
-        };
-    }
-
-    public get h() {
-        return this.screen.getHeight();
-    }
-
-    public get w() {
-        return this.screen.geWidth();
-    }
-
-    public set h(h: number) {
-        this.screen.setHeight(h);
-    }
-
-    public set w(w: number) {
-        this.screen.setWidth(w);
-    }
-
-    public set color(color: string) {
-        this.char = color;
-    }
-
-    public write(text: string, x: number, y: number) {
-        this.screen.write(text, x, y);
-    }
-
-    public elipse(x: number, y: number, w: number, h: number) {
-        this.screen.elipse(this.char, x, y, w, h);
-    }
+class Canvas extends Screen {
+    public style: string = "0";
 
     public rect(x: number, y: number, w: number, h: number) {
-        this.screen.rect(this.char, x, y, w, h);
-    }
-
-    public circle(radius: number, x: number, y: number) {
-        this.elipse(x, y, radius, radius);
-    }
-
-    public print() {
-        this.screen.print();
-    }
-
-    public clear() {
-        this.screen.clear();
+        this.drawRect(this.style, x, y, w, h);
     }
 }
 

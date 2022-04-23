@@ -1,7 +1,8 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 import { basename, join } from "../../imports/path.ts";
 
 export class Install implements Command {
+    public readonly availCommands: SubCommand[] = [];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /package/;
     public readonly version: string = "v1.0.0";

@@ -1,7 +1,26 @@
-import { RenderArguments, Command } from "../../components/handler.ts";
+import { RenderArguments, Command, SubCommand } from "../../components/handler.ts";
 import { Package } from "../package.ts";
 
 export class Launcher implements Command {
+    public readonly availCommands: SubCommand[] = [
+        {
+            type: "boolean",
+            name: "set",
+        },
+        {
+            type: "string",
+            name: "username",
+        },
+        {
+            type: "string",
+            name: "password",
+        },
+        {
+            type: "string",
+            name: "language",
+        },
+    ];
+
     public readonly developer: string = "system";
     public readonly targets: RegExp = /(config|settings|launcher)/;
     public readonly version: string = "v1.0.0";
@@ -81,5 +100,6 @@ export class Launcher implements Command {
 
     protected async loader(args: RenderArguments): Promise<void> {
         await this.package.load(args);
+        console.clear();
     }
 }

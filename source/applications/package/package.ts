@@ -1,9 +1,23 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
-import { join, basename } from "../../imports/path.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 import { Uninstall } from "./uninstall.ts";
 import { Install } from "./install.ts";
 
 class Package implements Command {
+    public readonly availCommands: SubCommand[] = [
+        {
+            type: "boolean",
+            name: "install",
+        },
+        {
+            type: "boolean",
+            name: "uninstall",
+        },
+        {
+            type: "boolean",
+            name: "list",
+        },
+    ];
+
     public readonly developer: string = "system";
     public readonly targets: RegExp = /package/;
     public readonly version: string = "v1.0.0";
@@ -13,30 +27,41 @@ class Package implements Command {
     protected install = new Install();
 
     public async render(args: RenderArguments) {
-        if (args.arguments.properties.uninstall !== undefined) {
+        const {
+            arguments: {
+                properties: { uninstall, install, list },
+            },
+        } = args;
+
+        if (uninstall !== undefined) {
             return await this.uninstall.render(args);
         }
 
-        if (args.arguments.properties.install !== undefined) {
+        if (install !== undefined) {
             return await this.install.render(args);
         }
 
-        if (args.arguments.properties.list !== undefined) {
+        if (list !== undefined) {
             this.list(args);
         }
     }
 
     public async load(args: RenderArguments) {
-        if (!args.libraries.memory.has("apps")) {
-            args.libraries.memory.set("apps", {});
+        const {
+            libraries: { memory },
+            initializer,
+        } = args;
+
+        if (!memory.has("apps")) {
+            memory.set("apps", {});
         }
 
-        const apps = args.libraries.memory.get("apps") as Record<string, string>;
+        const apps = memory.get("apps") as Record<string, string>;
 
         for (const name in apps) {
             const app = new (await import(apps[name])).default();
 
-            args.initializer.append(app);
+            initializer.append(app);
         }
     }
 

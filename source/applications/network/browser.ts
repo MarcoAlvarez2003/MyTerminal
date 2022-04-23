@@ -1,7 +1,8 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 import { Page } from "../../components/network.ts";
 
 export class Browser implements Command {
+    public readonly availCommands: SubCommand[] = [];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /(browser)/;
     public readonly version: string = "v1.0.0";

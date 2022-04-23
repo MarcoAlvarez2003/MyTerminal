@@ -1,15 +1,19 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 
 export class Echo implements Command {
+    public readonly availCommands: SubCommand[] = [];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /(echo)/;
     public readonly version: string = "v1.0.0";
     public readonly name: string = "echo";
 
     public render(args: RenderArguments) {
-        console.log(...args.arguments.entries);
+        const {
+            libraries: { recorder },
+            arguments: { entries },
+        } = args;
 
-        return args.arguments.entries.join(" ");
+        return recorder.record(...entries).getAsText();
     }
 
     public information({ libraries: { translator } }: RenderArguments) {

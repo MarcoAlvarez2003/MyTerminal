@@ -1,18 +1,27 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 
 export class Exit implements Command {
+    public readonly availCommands: SubCommand[] = [
+        {
+            type: "boolean",
+            name: "keep",
+        },
+    ];
+
     public readonly developer: string = "system";
-    public readonly targets: RegExp = /(exit)/;
     public readonly version: string = "v1.0.0";
+    public readonly targets: RegExp = /exit/;
     public readonly name: string = "exit";
 
     public async render(args: RenderArguments): Promise<void> {
-        await args.libraries.memory.save();
+        const {
+            arguments: { properties },
+            libraries: { memory },
+        } = args;
 
-        if (args.arguments.properties.keep !== undefined) {
-            console.clear();
-        }
+        await memory.save();
 
+        properties.clear !== undefined ? console.clear() : 0;
         Deno.exit();
     }
 

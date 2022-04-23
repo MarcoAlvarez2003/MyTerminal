@@ -19,7 +19,13 @@ type Render<Return = (void | unknown) | Promise<void | unknown>> = (
 
 type Message = string | (() => string);
 
+export interface SubCommand {
+    type: string;
+    name: string;
+}
+
 export interface Command {
+    availCommands: SubCommand[];
     information: Render;
     developer: string;
     targets: RegExp;

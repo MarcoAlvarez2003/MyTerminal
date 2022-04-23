@@ -9,9 +9,9 @@ import { Games } from "./applications/games.ts";
 /* 
     ? Modules
 */
+import { Canvas, Screen, ScreenGeometry } from "./components/graphics.ts";
 import { readKeypress, Keypress } from "./components/keyboard.ts";
 import { StatusController } from "./components/status.ts";
-import { Canvas, Screen } from "./components/graphics.ts";
 import { CommandHandler } from "./components/handler.ts";
 import { Package } from "./applications/package.ts";
 import { MemoryStorage } from "./components/mstore.ts";
@@ -40,10 +40,7 @@ class Program {
     protected static readline = new ReadLine();
     protected static path = new Path(Deno.cwd());
 
-    protected static geometry = [
-        Deno.consoleSize(Deno.stdout.rid).columns,
-        Deno.consoleSize(Deno.stdout.rid).rows,
-    ];
+    protected static geometry = Screen.getScreenGeometry();
 
     protected static keyboard = {
         read: readKeypress,
@@ -51,8 +48,8 @@ class Program {
 
     protected static fs = new FileSystem(Program.path);
     protected static router = new Router(Program.path);
-    protected static screen = new Screen(...Program.geometry);
-    protected static canvas = new Canvas(...Program.geometry);
+    protected static screen = new Screen(Program.geometry);
+    protected static canvas = new Canvas(Program.geometry);
 
     protected static memory = new MemoryStorage(
         join(Program.router.getRootLink(), Constants.Settings)

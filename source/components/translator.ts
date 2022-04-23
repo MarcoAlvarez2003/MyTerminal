@@ -36,6 +36,10 @@ class Translator {
         };
     }
 
+    public all(name: string) {
+        return this.translations[name];
+    }
+
     public has(name: string, lang: string = this.status.getUserLang()) {
         return !!this.translations[name][lang];
     }

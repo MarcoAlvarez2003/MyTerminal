@@ -1,12 +1,18 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 
 export class Uninstall implements Command {
+    public readonly availCommands: SubCommand[] = [];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /uninstall/;
     public readonly version: string = "v1.0.0";
     public readonly name: string = "uninstall";
 
-    public async render({ arguments: { entries }, libraries: { memory } }: RenderArguments) {
+    public async render(args: RenderArguments) {
+        const {
+            arguments: { entries },
+            libraries: { memory },
+        } = args;
+
         for (const filename of entries) {
             const applications = memory.get("apps") as Record<string, string>;
 

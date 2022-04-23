@@ -1,15 +1,25 @@
-import { Command, RenderArguments } from "../../components/handler.ts";
+import { Command, RenderArguments, SubCommand } from "../../components/handler.ts";
 import { bold, green, magenta } from "../../imports/color.ts";
 import { MemoryStorage } from "../../components/mstore.ts";
 
 export class Status implements Command {
+    public readonly availCommands: SubCommand[] = [
+        {
+            type: "boolean",
+            name: "modify",
+        },
+    ];
     public readonly developer: string = "system";
     public readonly targets: RegExp = /(status)/;
     public readonly version: string = "v1.0.0";
     public readonly name: string = "status";
 
     public render(args: RenderArguments): void {
-        if (args.arguments.properties.modify !== undefined) {
+        const {
+            arguments: { properties },
+        } = args;
+
+        if (properties.modify !== undefined) {
             this.modify(args);
         }
 
