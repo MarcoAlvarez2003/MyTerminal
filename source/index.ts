@@ -26,9 +26,13 @@ import { Path } from "./components/path.ts";
     ? Utils
 */
 import { green, magenta, yellow, bold } from "./imports/color.ts";
-import { join } from "./imports/path.ts";
-import { parse } from "./imports/flags.ts";
 import { Recorder } from "./components/recorder.ts";
+import { join } from "./imports/path.ts";
+/* 
+    ? Themes
+*/
+import * as Themes from "./applications/core/themes/themes.ts";
+import * as Utils from "./applications/core/themes/utils.ts";
 
 const enum Constants {
     Settings = "my_term_settings.json",
@@ -122,11 +126,16 @@ class Program {
     }
 
     protected static getShellMessage() {
-        const lastFolder = green(Program.formatLastFolder(Program.router.getLastFolder()));
-        const userName = magenta(Program.status.getUserName());
-        const userLink = yellow(Program.router.getUserLink());
+        const theme = Utils.getCurrentTheme(Themes, Program.memory);
+
+        const lastFolder = theme.CurrentFolderColor(
+            Program.formatLastFolder(Program.router.getLastFolder())
+        );
+
+        const userName = theme.UserNameColor(Program.status.getUserName());
+        const userLink = theme.UserLinkColor(Program.router.getUserLink());
         const instance = Program.getProgramInstance();
-        const input = bold("\n$");
+        const input = theme.InputColor("\n$");
 
         return `${instance} ${lastFolder} ${userName} ${userLink} ${input}`.trim();
     }

@@ -16,11 +16,15 @@ export class Status implements Command {
 
     public render(args: RenderArguments): void {
         const {
-            arguments: { properties },
+            arguments: { properties, entries },
         } = args;
 
         if (properties.modify !== undefined) {
-            this.modify(args);
+            if (typeof properties.modify === "string") {
+                this.change(args, properties.modify, entries[0]);
+            } else {
+                this.modify(args);
+            }
         }
 
         this.show(args);
@@ -39,6 +43,10 @@ export class Status implements Command {
                 information: "Información del estado del sistema",
             },
         });
+    }
+
+    protected change(args: RenderArguments, name: string, value: unknown) {
+        args.libraries.memory.set(name, value);
     }
 
     protected modify({ libraries: { memory } }: RenderArguments) {

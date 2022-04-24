@@ -64,8 +64,16 @@ export class Input extends Component {
             }
 
             if (keyPress.key === "backspace") {
+                const length = this.text.length;
                 this.back();
+
+                const text = this.text.padEnd(length, " ");
+                const last = this.text;
+
+                this.text = text;
                 await this.print(screen);
+                this.text = last;
+
                 continue;
             }
 
@@ -93,15 +101,33 @@ export class Input extends Component {
     }
 
     protected async print(screen: Screen) {
+        this.text = this.text.substring(0, this.w);
+
         screen.write(this.text, this.x, this.y);
         await screen.print();
     }
 }
 
 export class Label extends Component {
-    public text: string = "";
+    protected screen!: Screen;
+
+    constructor(
+        public text: string,
+        public x: number,
+        public y: number,
+        public w: number,
+        public h: number
+    ) {
+        super();
+    }
+
+    public async update() {
+        await this.render(this.screen);
+    }
 
     public async render(screen: Screen) {
+        this.screen = screen;
+
         this.events.start();
 
         this.print(screen);
