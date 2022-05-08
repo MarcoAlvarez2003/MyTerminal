@@ -1,4 +1,4 @@
-import { DOMParser, Element } from "../../imports/dom.ts";
+import { DOMParser, Element } from "../../../imports/dom.ts";
 
 class Page {
   public static async request(url: string) {

@@ -1,17 +1,21 @@
-import { Lexer, Tokenizer, CodeBlock, Token } from "../std/parser.ts";
-import { StatusController } from "../std/status.ts";
-import { Canvas, Screen } from "../std/graphics.ts";
+import { Lexer, Tokenizer, CodeBlock, Token } from "../std/modules/parser.ts";
 import { red, bold } from "../../imports/color.ts";
-import { readKeypress } from "../std/keyboard.ts";
-import { Translator } from "../std/translator.ts";
-import { MemoryStorage } from "../std/mstore.ts";
-import { FileSystem } from "../std/fsystem.ts";
-import { Recorder } from "../std/recorder.ts";
-import { ReadLine } from "../std/readline.ts";
-import { Router } from "../std/router.ts";
-import { Editor } from "../std/editor.ts";
-import { Page } from "../std/network.ts";
-import { Path } from "../std/path.ts";
+
+import {
+  StatusController,
+  MemoryStorage,
+  readKeypress,
+  Translator,
+  FileSystem,
+  ReadLine,
+  Recorder,
+  Canvas,
+  Editor,
+  Screen,
+  Router,
+  Page,
+  Path,
+} from "../std/index.ts";
 
 type Render<Return = (void | unknown) | Promise<void | unknown>> = (
   args: RenderArguments

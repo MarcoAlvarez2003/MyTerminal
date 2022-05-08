@@ -8,29 +8,32 @@ import { Cd, Read } from "./apps/fs/index.ts";
 /* 
     ? Modules
 */
-import { Canvas, Screen, ScreenGeometry } from "./core/std/graphics.ts";
-import { readKeypress, Keypress } from "./core/std/keyboard.ts";
-import { StatusController } from "./core/std/status.ts";
-import { CommandHandler } from "./core/os/handler.ts";
-import { Translator } from "./core/std/translator.ts";
-import { Package } from "./apps/package/index.ts";
-import { MemoryStorage } from "./core/std/mstore.ts";
-import { FileSystem } from "./core/std/fsystem.ts";
-import { ReadLine } from "./core/std/readline.ts";
-import { Router } from "./core/std/router.ts";
-import { Editor } from "./core/std/editor.ts";
-import { Page } from "./core/std/network.ts";
-import { Path } from "./core/std/path.ts";
+import {
+  StatusController,
+  MemoryStorage,
+  readKeypress,
+  FileSystem,
+  Translator,
+  ReadLine,
+  Screen,
+  Editor,
+  Router,
+  Canvas,
+  Page,
+  Path,
+} from "./core/std/index.ts";
 /* 
     ? Utils
 */
-import { Recorder } from "./core/std/recorder.ts";
+import { Recorder } from "./core/std/others/recorder.ts";
 import { join } from "./imports/path.ts";
 /* 
     ? Themes
 */
 import { getCurrentTheme } from "./core/themes/index.ts";
 import { themes } from "./core/themes/themes.ts";
+import { Package } from "./apps/package/index.ts";
+import { CommandHandler } from "./core/os/handler.ts";
 
 const enum Constants {
   Settings = "my_term_settings.json",

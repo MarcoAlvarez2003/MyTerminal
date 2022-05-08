@@ -1,4 +1,4 @@
-import { MemoryStorage } from "../../core/std/mstore.ts";
+import { MemoryStorage } from "../../core/std/utils/mstore.ts";
 
 export interface Theme {
   ShellColors: ShellColors;

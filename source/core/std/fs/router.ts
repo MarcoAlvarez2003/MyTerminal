@@ -1,5 +1,5 @@
 import { Path, NotAllowed, NotFound } from "./path.ts";
-import { join } from "../../imports/path.ts";
+import { join } from "../../../imports/path.ts";
 
 class Router {
   constructor(protected path: Path) {}

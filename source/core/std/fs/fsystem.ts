@@ -1,5 +1,5 @@
-import { join, basename, extname } from "../../imports/path.ts";
-import { exist } from "../../utils/path.ts";
+import { join, basename, extname } from "../../../imports/path.ts";
+import { exist } from "../../../utils/path.ts";
 import { Path } from "./path.ts";
 
 export interface Stat {

@@ -1,5 +1,5 @@
-import { join } from "../../imports/path.ts";
-import { exist } from "../../utils/path.ts";
+import { join } from "../../../imports/path.ts";
+import { exist } from "../../../utils/path.ts";
 
 class NotAllowed extends Error {
   public name: string = "NotAllowed";

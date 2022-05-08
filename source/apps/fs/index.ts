@@ -1,7 +1,7 @@
 import { Command, RenderArguments, SubCommand } from "../../core/os/handler.ts";
-import { Stat, Archive, Directory } from "../../core/std/fsystem.ts";
+import { Stat, Archive, Directory } from "../../core/std/fs/fsystem.ts";
 import { magenta, green, bold } from "../../imports/color.ts";
-import { Recorder } from "../../core/std/recorder.ts";
+import { Recorder } from "../../core/std/others/recorder.ts";
 
 /* 
   ? CD

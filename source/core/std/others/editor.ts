@@ -1,4 +1,4 @@
-import { white, bold, green } from "../../imports/color.ts";
+import { white, bold, green } from "../../../imports/color.ts";
 import { readKeypress, Keypress } from "./keyboard.ts";
 
 const ascii = {
