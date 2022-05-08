@@ -77,7 +77,12 @@ export class Cd implements Command {
 */
 
 export class Read implements Command {
-  public readonly availCommands: SubCommand[] = [];
+  public readonly availCommands: SubCommand[] = [
+    {
+      type: "boolean",
+      name: "url",
+    },
+  ];
   public readonly developer: string = "";
   public readonly targets: RegExp = /ls/;
   public readonly version: string = "v1.0.0";
@@ -86,16 +91,21 @@ export class Read implements Command {
   public tab: string = "";
 
   public async render(args: RenderArguments) {
-    const entries = args.arguments.entries;
+    const { entries, properties } = args.arguments;
     const fs = args.libraries.fs;
 
     if (entries.length) {
       for (const entry of entries) {
         const path = entry.toString();
-        const file = await fs.getArchive(path);
 
-        if (file) {
-          this.printArchive(file);
+        if (properties.url !== undefined) {
+          await this.printUrlData(path);
+        } else {
+          const file = await fs.getArchive(path);
+
+          if (file) {
+            this.printArchive(file);
+          }
         }
       }
     } else {
@@ -126,6 +136,16 @@ export class Read implements Command {
         information: "Aplicación para leer archivos",
       },
     });
+  }
+
+  protected async printUrlData(url: string) {
+    const file = await (await fetch(url)).text();
+
+    this.recorder.record(`${this.tab}${magenta("File Url")}: ${green(url)}`);
+
+    this.recorder.record(
+      `${this.tab}${magenta("File Body")}: ${green(this.parseBody(file))}`
+    );
   }
 
   protected printStat(stat: Stat) {
