@@ -35,11 +35,11 @@ import { themes } from "./core/themes/themes.ts";
 import { Package } from "./apps/package/index.ts";
 import { CommandHandler } from "./core/os/handler.ts";
 
-const enum Constants {
+export const enum Constants {
   Settings = "my_term_settings.json",
 }
 
-class Program {
+export class Program {
   protected static page = new Page();
   protected static editor = new Editor();
   protected static readline = new ReadLine();
@@ -155,5 +155,3 @@ class Program {
     console.clear();
   }
 }
-
-export { Constants, Program };

@@ -149,6 +149,10 @@ export class Status implements Command {
       type: "boolean",
       name: "modify",
     },
+    {
+      type: "boolean",
+      name: "delete",
+    },
   ];
   public readonly developer: string = "system";
   public readonly targets: RegExp = /(status)/;
@@ -156,16 +160,18 @@ export class Status implements Command {
   public readonly name: string = "status";
 
   public render(args: RenderArguments): void {
-    const {
-      arguments: { properties, entries },
-    } = args;
+    const { entries, properties } = args.arguments;
 
     if (properties.modify !== undefined) {
       if (typeof properties.modify === "string") {
-        this.change(args, properties.modify, entries[0]);
-      } else {
-        this.modify(args);
+        return this.change(args, properties.modify, entries[0]);
       }
+
+      this.modify(args);
+    }
+
+    if (properties.delete !== undefined) {
+      return this.delete(args);
     }
 
     this.show(args);
@@ -184,6 +190,15 @@ export class Status implements Command {
         information: "Información del estado del sistema",
       },
     });
+  }
+
+  protected delete(args: RenderArguments) {
+    for (const entry of args.arguments.entries) {
+      args.libraries.memory.del(entry.toString());
+      console.log(`Deleting ${entry}...`);
+    }
+
+    console.log(`Deletion Success`);
   }
 
   protected change(args: RenderArguments, name: string, value: unknown) {
